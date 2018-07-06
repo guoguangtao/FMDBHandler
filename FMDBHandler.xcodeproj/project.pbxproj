@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F8B73042A881A813E3C9215 /* libPods-FMDBHandler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4A49C706793009A3452072A /* libPods-FMDBHandler.a */; };
 		8A44C4BA20EF58C7008C5AAD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4B920EF58C7008C5AAD /* AppDelegate.m */; };
 		8A44C4BD20EF58C7008C5AAD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4BC20EF58C7008C5AAD /* ViewController.m */; };
 		8A44C4C020EF58C7008C5AAD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8A44C4BE20EF58C7008C5AAD /* Main.storyboard */; };
@@ -15,6 +16,7 @@
 		8A44C4C820EF58C9008C5AAD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4C720EF58C9008C5AAD /* main.m */; };
 		8A44C4D220EF58C9008C5AAD /* FMDBHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4D120EF58C9008C5AAD /* FMDBHandlerTests.m */; };
 		8A44C4DD20EF58C9008C5AAD /* FMDBHandlerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4DC20EF58C9008C5AAD /* FMDBHandlerUITests.m */; };
+		8A44C4ED20EF6FC5008C5AAD /* FMDBHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4EC20EF6FC5008C5AAD /* FMDBHandler.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +53,11 @@
 		8A44C4D820EF58C9008C5AAD /* FMDBHandlerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMDBHandlerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A44C4DC20EF58C9008C5AAD /* FMDBHandlerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDBHandlerUITests.m; sourceTree = "<group>"; };
 		8A44C4DE20EF58C9008C5AAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8A44C4EB20EF6FC5008C5AAD /* FMDBHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDBHandler.h; sourceTree = "<group>"; };
+		8A44C4EC20EF6FC5008C5AAD /* FMDBHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDBHandler.m; sourceTree = "<group>"; };
+		B0EF574F6A05B75DF302E9F0 /* Pods-FMDBHandler.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FMDBHandler.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FMDBHandler/Pods-FMDBHandler.debug.xcconfig"; sourceTree = "<group>"; };
+		BE3AB192233E8CBA06EB76C2 /* Pods-FMDBHandler.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FMDBHandler.release.xcconfig"; path = "Pods/Target Support Files/Pods-FMDBHandler/Pods-FMDBHandler.release.xcconfig"; sourceTree = "<group>"; };
+		D4A49C706793009A3452072A /* libPods-FMDBHandler.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FMDBHandler.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F8B73042A881A813E3C9215 /* libPods-FMDBHandler.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +86,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		33B766D9A6E6560C78CEFE27 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D4A49C706793009A3452072A /* libPods-FMDBHandler.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		530B3553153B9049482F29D7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B0EF574F6A05B75DF302E9F0 /* Pods-FMDBHandler.debug.xcconfig */,
+				BE3AB192233E8CBA06EB76C2 /* Pods-FMDBHandler.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		8A44C4AC20EF58C7008C5AAD = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +110,8 @@
 				8A44C4D020EF58C9008C5AAD /* FMDBHandlerTests */,
 				8A44C4DB20EF58C9008C5AAD /* FMDBHandlerUITests */,
 				8A44C4B620EF58C7008C5AAD /* Products */,
+				530B3553153B9049482F29D7 /* Pods */,
+				33B766D9A6E6560C78CEFE27 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,6 +128,7 @@
 		8A44C4B720EF58C7008C5AAD /* FMDBHandler */ = {
 			isa = PBXGroup;
 			children = (
+				8A44C4EA20EF6FA8008C5AAD /* FMDBHandler */,
 				8A44C4B820EF58C7008C5AAD /* AppDelegate.h */,
 				8A44C4B920EF58C7008C5AAD /* AppDelegate.m */,
 				8A44C4BB20EF58C7008C5AAD /* ViewController.h */,
@@ -132,6 +160,15 @@
 			path = FMDBHandlerUITests;
 			sourceTree = "<group>";
 		};
+		8A44C4EA20EF6FA8008C5AAD /* FMDBHandler */ = {
+			isa = PBXGroup;
+			children = (
+				8A44C4EB20EF6FC5008C5AAD /* FMDBHandler.h */,
+				8A44C4EC20EF6FC5008C5AAD /* FMDBHandler.m */,
+			);
+			path = FMDBHandler;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -139,6 +176,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8A44C4E120EF58C9008C5AAD /* Build configuration list for PBXNativeTarget "FMDBHandler" */;
 			buildPhases = (
+				AEE0DC07FF802724963A1398 /* [CP] Check Pods Manifest.lock */,
 				8A44C4B120EF58C7008C5AAD /* Sources */,
 				8A44C4B220EF58C7008C5AAD /* Frameworks */,
 				8A44C4B320EF58C7008C5AAD /* Resources */,
@@ -257,6 +295,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AEE0DC07FF802724963A1398 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FMDBHandler-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8A44C4B120EF58C7008C5AAD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -265,6 +324,7 @@
 				8A44C4BD20EF58C7008C5AAD /* ViewController.m in Sources */,
 				8A44C4C820EF58C9008C5AAD /* main.m in Sources */,
 				8A44C4BA20EF58C7008C5AAD /* AppDelegate.m in Sources */,
+				8A44C4ED20EF6FC5008C5AAD /* FMDBHandler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +491,7 @@
 		};
 		8A44C4E220EF58C9008C5AAD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B0EF574F6A05B75DF302E9F0 /* Pods-FMDBHandler.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -447,6 +508,7 @@
 		};
 		8A44C4E320EF58C9008C5AAD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BE3AB192233E8CBA06EB76C2 /* Pods-FMDBHandler.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
