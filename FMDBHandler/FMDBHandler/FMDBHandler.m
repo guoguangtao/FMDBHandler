@@ -7,9 +7,11 @@
 //
 
 #import "FMDBHandler.h"
+#import "FMDB.h"
+
+static FMDatabaseQueue *_dbQueue = nil;
 
 @interface FMDBHandler ()
-
 
 
 @end
@@ -31,6 +33,12 @@
 
 
 #pragma mark - Private
+
+
++ (NSString *)filePath {
+    
+     return [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Data.sqlite"];
+}
 
 
 #pragma mark - Protocol
