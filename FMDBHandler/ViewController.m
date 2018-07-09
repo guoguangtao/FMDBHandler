@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "Person.h"
+#import "FMDBHandler.h"
 
 @interface ViewController ()
 
@@ -20,6 +22,12 @@
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(20, 100, self.view.bounds.size.width - 40, 50)];
     button.backgroundColor = [UIColor orangeColor];
     [self.view addSubview:button];
+    
+    Person *person = [[Person alloc] init];
+    person.age = 30;
+    person.name = @"Jack";
+    person.number = @20;
+    [[FMDBHandler shareInstance] inserData:person tableName:@"Person"];
 }
 
 

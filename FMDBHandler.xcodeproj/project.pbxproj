@@ -17,6 +17,7 @@
 		8A44C4D220EF58C9008C5AAD /* FMDBHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4D120EF58C9008C5AAD /* FMDBHandlerTests.m */; };
 		8A44C4DD20EF58C9008C5AAD /* FMDBHandlerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4DC20EF58C9008C5AAD /* FMDBHandlerUITests.m */; };
 		8A44C4ED20EF6FC5008C5AAD /* FMDBHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A44C4EC20EF6FC5008C5AAD /* FMDBHandler.m */; };
+		8A76E4DD20F2EAF9000D5AD3 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A76E4DC20F2EAF9000D5AD3 /* Person.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,8 @@
 		8A44C4DE20EF58C9008C5AAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A44C4EB20EF6FC5008C5AAD /* FMDBHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDBHandler.h; sourceTree = "<group>"; };
 		8A44C4EC20EF6FC5008C5AAD /* FMDBHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDBHandler.m; sourceTree = "<group>"; };
+		8A76E4DB20F2EAF9000D5AD3 /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		8A76E4DC20F2EAF9000D5AD3 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		B0EF574F6A05B75DF302E9F0 /* Pods-FMDBHandler.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FMDBHandler.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FMDBHandler/Pods-FMDBHandler.debug.xcconfig"; sourceTree = "<group>"; };
 		BE3AB192233E8CBA06EB76C2 /* Pods-FMDBHandler.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FMDBHandler.release.xcconfig"; path = "Pods/Target Support Files/Pods-FMDBHandler/Pods-FMDBHandler.release.xcconfig"; sourceTree = "<group>"; };
 		D4A49C706793009A3452072A /* libPods-FMDBHandler.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FMDBHandler.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,6 +136,8 @@
 				8A44C4B920EF58C7008C5AAD /* AppDelegate.m */,
 				8A44C4BB20EF58C7008C5AAD /* ViewController.h */,
 				8A44C4BC20EF58C7008C5AAD /* ViewController.m */,
+				8A76E4DB20F2EAF9000D5AD3 /* Person.h */,
+				8A76E4DC20F2EAF9000D5AD3 /* Person.m */,
 				8A44C4BE20EF58C7008C5AAD /* Main.storyboard */,
 				8A44C4C120EF58C9008C5AAD /* Assets.xcassets */,
 				8A44C4C320EF58C9008C5AAD /* LaunchScreen.storyboard */,
@@ -323,6 +328,7 @@
 			files = (
 				8A44C4BD20EF58C7008C5AAD /* ViewController.m in Sources */,
 				8A44C4C820EF58C9008C5AAD /* main.m in Sources */,
+				8A76E4DD20F2EAF9000D5AD3 /* Person.m in Sources */,
 				8A44C4BA20EF58C7008C5AAD /* AppDelegate.m in Sources */,
 				8A44C4ED20EF6FC5008C5AAD /* FMDBHandler.m in Sources */,
 			);
