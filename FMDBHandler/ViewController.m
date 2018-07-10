@@ -18,16 +18,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(20, 100, self.view.bounds.size.width - 40, 50)];
-    button.backgroundColor = [UIColor orangeColor];
-    [self.view addSubview:button];
-    
-    Person *person = [[Person alloc] init];
-    person.age = 30;
-    person.name = @"Jack";
-    person.number = @20;
-    [[FMDBHandler shareInstance] inserData:person tableName:@"Person"];
+
+//    Person *person = [[Person alloc] init];
+//    person.age = 30;
+//    person.name = @"Tom";
+//    person.number = @20;
+//    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
+    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
 }
 
 

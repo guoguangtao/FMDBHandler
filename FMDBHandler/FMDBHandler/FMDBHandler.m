@@ -9,7 +9,6 @@
 #import "FMDBHandler.h"
 #import "FMDB.h"
 #import <objc/runtime.h>
-#import "Person.h"
 
 @interface FMDBHandler ()
 
@@ -96,7 +95,7 @@ static FMDBHandler *_instance;
  @param classObject 需要插入的数据
  @param tableName 表名
  */
-- (void)inserData:(id)classObject tableName:(NSString *)tableName {
+- (void)insertData:(id)classObject tableName:(NSString *)tableName {
     
     // 先创建表格
     [self tableName:tableName classObject:classObject];
@@ -112,8 +111,60 @@ static FMDBHandler *_instance;
             [self.valuesArray removeAllObjects];
             [self closeDataBase:db];
         }
-        
     }];
+}
+
+/**
+ 删除某条数据
+ 
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段内容
+ */
+- (void)deletedDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value {
+    
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                NSString *sql = [NSString stringWithFormat:@"DELETE FROM %@ WHERE %@ = ?", tableName, columnName];
+                BOOL success = [db executeUpdate:sql withArgumentsInArray:@[value]]; // 删除操作
+                if (!success) NSLog(@"删除失败");
+                [self closeDataBase:db];
+            }
+        }];
+    }
+}
+
+/**
+ 按照多个条件删除某条数据
+ 
+ @param tableName 表名
+ @param columnNames 条件数组
+ @param values 内容数组
+ */
+- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values {
+    
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                // SQL语句拼接
+                NSMutableString *sqlString = [NSMutableString stringWithString:[NSString stringWithFormat:@"DELETE FROM %@ WHERE", tableName]];
+                for (int i = 0; i < columnNames.count; i++) {
+                    NSString *columnName = columnNames[i];
+                    if (i == columnNames.count - 1) {
+                        // 最后一个不需要 and
+                        [sqlString appendFormat:@" %@ = ?", columnName];
+                    } else {
+                        [sqlString appendFormat:@" %@ = ? and", columnName];
+                    }
+                }
+                
+                BOOL success = [db executeUpdate:sqlString withArgumentsInArray:values];
+                if (!success) NSLog(@"删除失败");
+                [self closeDataBase:db];
+            }
+        }];
+    }
 }
 
 #pragma mark - Private
@@ -131,7 +182,6 @@ static FMDBHandler *_instance;
         const char *type = ivar_getTypeEncoding(ivar);
         
         NSString *columnString = [[NSString stringWithFormat:@"%s", name] substringFromIndex:1];
-        
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             if ([db open]) {
                 if (![db columnExists:columnString inTableWithName:tableName]){
@@ -225,14 +275,15 @@ static FMDBHandler *_instance;
     
     NSString *str = [NSString stringWithFormat:@"%s", charType];
     
-    if ([str isEqualToString:@"B"]) return @"INTEGER";                  // BOOL 类型
-    if ([str isEqualToString:@"q"]) return @"INTEGER";                  // NSInteger 类型
-    if ([str isEqualToString:@"i"]) return @"INTEGER";                  // int 类型
-    if ([str isEqualToString:@"Q"]) return @"INTEGER";                  // NSUInteger 类型
+    if ([str isEqualToString:@"B"]) return @"INTEGER";                          // BOOL 类型
+    if ([str isEqualToString:@"q"]) return @"INTEGER";                          // NSInteger 类型
+    if ([str isEqualToString:@"i"]) return @"INTEGER";                          // int 类型
+    if ([str isEqualToString:@"Q"]) return @"INTEGER";                          // NSUInteger 类型
     
-    if ([str isEqualToString:@"f"]) return @"REAL";                     // 浮点类型
+    if ([str isEqualToString:@"f"]) return @"REAL";                             // 浮点类型
+    if ([str isEqualToString:@"d"]) return @"REAL";                             // Double 类型
     
-    if ([str isEqualToString:@"@\"NSString\""]) return @"TEXT";               // 字符串
+    if ([str isEqualToString:@"@\"NSString\""]) return @"TEXT";                 // 字符串
     if ([str isEqualToString:@"@\"NSMutableString\""]) return @"TEXT";          // 字符串
     
     return @"BLOB"; // 对象类型

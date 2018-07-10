@@ -21,6 +21,7 @@ typedef NS_ENUM(NSInteger, PersonSex) {
 @property (nonatomic, copy) NSString *name;     /**< 名字 */
 @property (nonatomic, assign) PersonSex sex;    /**< 性别 */
 @property (nonatomic, strong) NSNumber *number;
+@property (nonatomic, assign) double testNumber;
 
 #pragma mark - Method
 

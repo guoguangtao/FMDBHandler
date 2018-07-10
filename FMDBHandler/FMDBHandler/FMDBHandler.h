@@ -32,6 +32,24 @@
  @param classObject 需要插入的数据
  @param tableName 表名
  */
-- (void)inserData:(id)classObject tableName:(NSString *)tableName;
+- (void)insertData:(id)classObject tableName:(NSString *)tableName;
+
+/**
+ 按照单个条件删除某条数据
+
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段内容
+ */
+- (void)deletedDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value;
+
+/**
+ 按照多个条件删除某条数据
+
+ @param tableName 表名
+ @param columnNames 条件数组
+ @param values 内容数组
+ */
+- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values;
 
 @end
