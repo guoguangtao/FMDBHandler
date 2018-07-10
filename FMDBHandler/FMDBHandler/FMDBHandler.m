@@ -167,6 +167,29 @@ static FMDBHandler *_instance;
     }
 }
 
+/**
+ 单个条件更新数据
+ 
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段值
+ @param updateColumnName 需要更新的字段名
+ @param updateValue 需要更新的字段内容
+ */
+- (void)updateDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value updateColumnName:(NSString *)updateColumnName updateValue:(id)updateValue {
+    
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                NSMutableString *sqlString = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = ? WHERE %@ = ?", tableName, updateColumnName, columnName];
+                BOOL success = [db executeUpdate:sqlString withArgumentsInArray:@[updateValue, value]];
+                if (!success) NSLog(@"删除失败");
+                [self closeDataBase:db];
+            }
+        }];
+    }
+}
+
 #pragma mark - Private
 
 /**

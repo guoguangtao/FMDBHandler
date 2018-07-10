@@ -52,4 +52,16 @@
  */
 - (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values;
 
+
+/**
+ 单个条件更新数据
+ 
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段值
+ @param updateColumnName 需要更新的字段名
+ @param updateValue 需要更新的字段内容
+ */
+- (void)updateDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value updateColumnName:(NSString *)updateColumnName updateValue:(id)updateValue;
+
 @end

@@ -24,7 +24,9 @@
 //    person.name = @"Tom";
 //    person.number = @20;
 //    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
-    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
+//    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
+    
+    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
 }
 
 
