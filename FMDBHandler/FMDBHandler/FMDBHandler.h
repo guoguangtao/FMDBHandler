@@ -84,4 +84,20 @@
               updateColumnNames:(NSArray *)updateColumnNames
              updateColumnValues:(NSArray *)updateColumnValues;
 
+/**
+ 根据单个条件获取数据
+
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段值
+ */
+- (void)getDataWithTableName:(NSString *)tableName columName:(NSString *)columnName columnValue:(id)value;
+
+/**
+ 获取表所有数据
+
+ @param tableName 表名
+ */
+- (NSArray *)getAllDataWithTableName:(NSString *)tableName classObject:(id)classObject;
+
 @end

@@ -235,6 +235,110 @@ static FMDBHandler *_instance;
     }
 }
 
+/**
+ 根据单个条件获取数据
+ 
+ @param tableName 表名
+ @param columnName 条件字段名
+ @param value 条件字段值
+ */
+- (void)getDataWithTableName:(NSString *)tableName columName:(NSString *)columnName columnValue:(id)value {
+    
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?", tableName, columnName];
+                FMResultSet *resultSet = [db executeQuery:sqlString withArgumentsInArray:@[value]];
+                if ([resultSet next]) {
+                    
+                }
+                [self closeDataBase:db];
+            }
+        }];
+    }
+}
+
+- (NSArray *)getAllDataWithTableName:(NSString *)tableName classObject:(id)classObject {
+    
+    __block NSMutableArray *resultArray = [NSMutableArray array];
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@", tableName];
+                FMResultSet *resultSet = [db executeQuery:sqlString];
+                NSString *classString = NSStringFromClass(classObject);
+                while ([resultSet next]) {
+                    // 进行数据解析
+                    id classObj = [[NSClassFromString(classString) alloc] init];
+                    [self classObject:classObj ResultSet:resultSet];
+                    [resultArray addObject:classObj];
+                }
+                [self closeDataBase:db];
+            }
+        }];
+    }
+    
+    return resultArray;
+}
+
+/**
+ 利用运行时将数据赋值
+
+ @param classObject 模型数据
+ @param resultSet 结果集合
+ */
+- (void)classObject:(id)classObject ResultSet:(FMResultSet *)resultSet {
+    
+    unsigned int outCount = 0;
+    Ivar *ivars = class_copyIvarList([classObject class], &outCount);
+    for (unsigned int i = 0; i < outCount; i ++) {
+        Ivar ivar = ivars[i];
+        const char *name = ivar_getName(ivar);
+        const char *type = ivar_getTypeEncoding(ivar);
+        NSString *sqlType = [NSString stringWithCString:type encoding:NSUTF8StringEncoding];
+        NSString *columnName = [[NSString stringWithCString:name encoding:NSUTF8StringEncoding] substringFromIndex:1];
+        [self setupClassObject:classObject sqlType:sqlType name:columnName resultSet:resultSet];
+    }
+    free(ivars);
+}
+
+/**
+ 给数据模型赋值
+
+ @param classObject 数据Model对象
+ @param sqlType SQL数据类型
+ @param name 属性名
+ @param resultSet 查询结果集合
+ */
+- (void)setupClassObject:(id)classObject sqlType:(NSString *)sqlType name:(NSString *)name resultSet:(FMResultSet *)resultSet {
+    
+    if ([sqlType isEqualToString:@"B"]) {
+        // BOOL 类型
+        [classObject setValue:[NSNumber numberWithBool:[resultSet boolForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"q"]) {
+        // NSInteger 类型
+        [classObject setValue:[NSNumber numberWithInteger:[resultSet longForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"i"]) {
+        // int 类型
+        [classObject setValue:[NSNumber numberWithInt:[resultSet intForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"Q"]) {
+        // NSUInteger 类型
+        [classObject setValue:[NSNumber numberWithUnsignedInteger:[resultSet unsignedLongLongIntForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"f"]) {
+        // 浮点类型
+        [classObject setValue:[NSNumber numberWithFloat:[resultSet doubleForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"d"]) {
+        // Double 类型
+        [classObject setValue:[NSNumber numberWithDouble:[resultSet doubleForColumn:name]] forKey:name];
+    } else if ([sqlType isEqualToString:@"@\"NSString\""] || [sqlType isEqualToString:@"@\"NSMutableString\""]) {
+        // 字符串
+        [classObject setValue:[resultSet stringForColumn:name] forKey:name];
+    } else {
+        // 对象类型
+        [classObject setValue:[resultSet objectForColumn:name] forKey:name];
+    }
+}
+
 #pragma mark - Private
 
 /**

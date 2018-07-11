@@ -22,6 +22,7 @@ typedef NS_ENUM(NSInteger, PersonSex) {
 @property (nonatomic, assign) PersonSex sex;    /**< 性别 */
 @property (nonatomic, strong) NSNumber *number;
 @property (nonatomic, assign) double testNumber;
+@property (nonatomic, strong) NSArray *numberArray;
 
 #pragma mark - Method
 
