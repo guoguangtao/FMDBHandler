@@ -26,7 +26,8 @@
 //    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
 //    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
     
-    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
+//    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
+    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnNames:@[@"id", @"name"] columnValues:@[@1, @"渣渣"] updateColumnNames:@[@"number", @"testNumber"] updateColumnValues:@[@1, @1]];
 }
 
 

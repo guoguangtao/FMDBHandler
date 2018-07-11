@@ -62,6 +62,26 @@
  @param updateColumnName 需要更新的字段名
  @param updateValue 需要更新的字段内容
  */
-- (void)updateDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value updateColumnName:(NSString *)updateColumnName updateValue:(id)updateValue;
+- (void)updateDataWithTableName:(NSString *)tableName
+                     columnName:(NSString *)columnName
+                          value:(id)value
+               updateColumnName:(NSString *)updateColumnName
+                    updateValue:(id)updateValue;
+
+
+/**
+ 多个条件更新数据
+
+ @param tableName 表名
+ @param columnNames 条件字段名
+ @param columnValues 条件字段值
+ @param updateColumnNames 需要更新的字段名数组
+ @param updateColumnValues 需要更新的字段内容数组
+ */
+- (void)updateDataWithTableName:(NSString *)tableName
+                    columnNames:(NSArray *)columnNames
+                   columnValues:(NSArray *)columnValues
+              updateColumnNames:(NSArray *)updateColumnNames
+             updateColumnValues:(NSArray *)updateColumnValues;
 
 @end

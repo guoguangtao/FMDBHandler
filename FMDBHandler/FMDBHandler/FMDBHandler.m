@@ -183,7 +183,52 @@ static FMDBHandler *_instance;
             if ([db open]) {
                 NSMutableString *sqlString = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = ? WHERE %@ = ?", tableName, updateColumnName, columnName];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:@[updateValue, value]];
-                if (!success) NSLog(@"删除失败");
+                if (!success) NSLog(@"更新失败");
+                [self closeDataBase:db];
+            }
+        }];
+    }
+}
+
+/**
+ 多个条件更新数据
+ 
+ @param tableName 表名
+ @param columnNames 条件字段名
+ @param columnValues 条件字段值
+ @param updateColumnNames 需要更新的字段名数组
+ @param updateColumnValues 需要更新的字段内容数组
+ */
+- (void)updateDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames columnValues:(NSArray *)columnValues updateColumnNames:(NSArray *)updateColumnNames updateColumnValues:(NSArray *)updateColumnValues {
+    
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                // SQL语句字符串拼接
+                NSMutableString *sqlString = [NSMutableString stringWithFormat:@"UPDATE %@ SET", tableName];
+                // 需要更新的字段
+                for (int i = 0; i < updateColumnNames.count; i++) {
+                    NSString *columnName = updateColumnNames[i];
+                    if (i < updateColumnNames.count - 1) {
+                        [sqlString appendFormat:@" %@ = ?,", columnName];
+                    } else {
+                        [sqlString appendFormat:@" %@ = ? ", columnName];
+                    }
+                }
+                // 查询条件
+                [sqlString appendString:@"WHERE"];
+                for (int i = 0; i < columnNames.count; i++) {
+                    NSString *columnName = columnNames[i];
+                    if (i < columnNames.count - 1) {
+                        [sqlString appendFormat:@" %@ = ? AND", columnName];
+                    } else {
+                        [sqlString appendFormat:@" %@ = ?", columnName];
+                    }
+                }
+                NSMutableArray *arguments = [NSMutableArray arrayWithArray:updateColumnValues];
+                [arguments addObjectsFromArray:columnValues];
+                BOOL success = [db executeUpdate:sqlString withArgumentsInArray:arguments];
+                if (!success) NSLog(@"更新失败");
                 [self closeDataBase:db];
             }
         }];
