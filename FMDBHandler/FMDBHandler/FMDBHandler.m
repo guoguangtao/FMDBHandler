@@ -335,7 +335,8 @@ static FMDBHandler *_instance;
         [classObject setValue:[resultSet stringForColumn:name] forKey:name];
     } else {
         // 对象类型
-        [classObject setValue:[resultSet objectForColumn:name] forKey:name];
+        NSData *data = [resultSet objectForColumn:name];
+        [classObject setValue:[NSKeyedUnarchiver unarchiveObjectWithData:data] forKey:name];
     }
 }
 
@@ -387,7 +388,7 @@ static FMDBHandler *_instance;
         Ivar ivar = ivars[i];
         const char *name = ivar_getName(ivar);
         const char *type = ivar_getTypeEncoding(ivar);
-        NSLog(@"类型为 %s, 熟悉名 %s", type, name);
+        NSLog(@"类型为 %s, 属性名 %s", type, name);
         [sqlString appendFormat:@", %@ %@", [[NSString stringWithFormat:@"%s", name] substringFromIndex:1], [self sqlTypeWithChar:type]];
     }
     [sqlString appendString:@");"];
@@ -410,8 +411,13 @@ static FMDBHandler *_instance;
     for (unsigned int i = 0; i < outCount; i ++) {
         Ivar ivar = ivars[i];
         const char *name = ivar_getName(ivar);
+        const char *type = ivar_getTypeEncoding(ivar);
         NSString *nameStr = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+        NSString *typeString = [self sqlTypeWithChar:type];
         id value = [classObject valueForKeyPath:nameStr];
+        if ([typeString isEqualToString:@"BLOB"]) {
+            value = [NSKeyedArchiver archivedDataWithRootObject:value];
+        }
         // 设置keyString
         [keyString appendFormat:@"%@, ", [nameStr substringFromIndex:1]];
 

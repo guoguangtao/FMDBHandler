@@ -19,12 +19,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-//    Person *person = [[Person alloc] init];
-//    person.age = 30;
-//    person.name = @"Jack";
-//    person.number = @20;
-//    person.numberArray = @[@1, @"3", @"1", [NSDate date]];
-//    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
+    Person *person = [[Person alloc] init];
+    person.age = 30;
+    person.name = @"Jack";
+    person.number = @20;
+    person.numberArray = @[@1, @"43", [NSDate date]];
+    Person *son = [Person new];
+    son.age = 10;
+    son.name = @"tom";
+    person.son = son;
+    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
 //    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
     
 //    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
