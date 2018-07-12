@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, FMDBHandlerWhereSQLType) {
+    FMDBHandlerWhereSQLTypeAnd = 1,  /**< WHERE and 语句 */
+    FMDBHandlerWhereSQLTypeOr,       /**< WHERE or 语句 */
+};
+
 /// FMDB数据库管理
 @interface FMDBHandler : NSObject
 
@@ -50,7 +55,7 @@
  @param columnNames 条件数组
  @param values 内容数组
  */
-- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values;
+- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values whereType:(FMDBHandlerWhereSQLType)whereType;
 
 
 /**
@@ -82,16 +87,35 @@
                     columnNames:(NSArray *)columnNames
                    columnValues:(NSArray *)columnValues
               updateColumnNames:(NSArray *)updateColumnNames
-             updateColumnValues:(NSArray *)updateColumnValues;
+             updateColumnValues:(NSArray *)updateColumnValues
+                      whereType:(FMDBHandlerWhereSQLType)whereType;
 
 /**
  根据单个条件获取数据
 
  @param tableName 表名
+ @param classObject 数据模型
  @param columnName 条件字段名
  @param value 条件字段值
  */
-- (void)getDataWithTableName:(NSString *)tableName columName:(NSString *)columnName columnValue:(id)value;
+- (NSArray *)getDataWithTableName:(NSString *)tableName
+                      classObject:(id)classObject
+                        columName:(NSString *)columnName
+                      columnValue:(id)value;
+
+/**
+ 根据多个条件获取数据
+
+ @param tableName 表名
+ @param classObject 数据模型
+ @param columnNames 条件字段名
+ @param values 条件字段值
+ */
+- (NSArray *)getDataWithTableName:(NSString *)tableName
+                      classObject:(id)classObject
+                      columnNames:(NSArray *)columnNames
+                     columnValues:(NSArray *)values
+                        whereType:(FMDBHandlerWhereSQLType)whereType;
 
 /**
  获取表所有数据
@@ -99,5 +123,20 @@
  @param tableName 表名
  */
 - (NSArray *)getAllDataWithTableName:(NSString *)tableName classObject:(id)classObject;
+
+/**
+ 执行自定义SQL更新语句
+
+ @param sqlString SQL语句
+ */
+- (BOOL)executeUpdate:(NSString *)sqlString;
+
+/**
+ 执行自定义SQL查询语句
+ 
+ @param sqlString SQL查询语句
+ @param classObject 模型数据
+ */
+- (NSArray *)executeQuery:(NSString *)sqlString classObject:(id)classObject;
 
 @end

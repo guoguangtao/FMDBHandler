@@ -142,23 +142,14 @@ static FMDBHandler *_instance;
  @param columnNames 条件数组
  @param values 内容数组
  */
-- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values {
+- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values whereType:(FMDBHandlerWhereSQLType)whereType {
     
     if ([self tableIsExist:tableName]) {
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             if ([db open]) {
-                // SQL语句拼接
-                NSMutableString *sqlString = [NSMutableString stringWithString:[NSString stringWithFormat:@"DELETE FROM %@ WHERE", tableName]];
-                for (int i = 0; i < columnNames.count; i++) {
-                    NSString *columnName = columnNames[i];
-                    if (i == columnNames.count - 1) {
-                        // 最后一个不需要 and
-                        [sqlString appendFormat:@" %@ = ?", columnName];
-                    } else {
-                        [sqlString appendFormat:@" %@ = ? and", columnName];
-                    }
-                }
                 
+                // SQL语句拼接
+                NSMutableString *sqlString = [NSMutableString stringWithString:[NSString stringWithFormat:@"DELETE FROM %@ %@", tableName, [self whereSQLStringWithColumnNames:columnNames whereType:whereType]]];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:values];
                 if (!success) NSLog(@"删除失败");
                 [self closeDataBase:db];
@@ -199,7 +190,7 @@ static FMDBHandler *_instance;
  @param updateColumnNames 需要更新的字段名数组
  @param updateColumnValues 需要更新的字段内容数组
  */
-- (void)updateDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames columnValues:(NSArray *)columnValues updateColumnNames:(NSArray *)updateColumnNames updateColumnValues:(NSArray *)updateColumnValues {
+- (void)updateDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames columnValues:(NSArray *)columnValues updateColumnNames:(NSArray *)updateColumnNames updateColumnValues:(NSArray *)updateColumnValues whereType:(FMDBHandlerWhereSQLType)whereType {
     
     if ([self tableIsExist:tableName]) {
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
@@ -216,15 +207,7 @@ static FMDBHandler *_instance;
                     }
                 }
                 // 查询条件
-                [sqlString appendString:@"WHERE"];
-                for (int i = 0; i < columnNames.count; i++) {
-                    NSString *columnName = columnNames[i];
-                    if (i < columnNames.count - 1) {
-                        [sqlString appendFormat:@" %@ = ? AND", columnName];
-                    } else {
-                        [sqlString appendFormat:@" %@ = ?", columnName];
-                    }
-                }
+                [sqlString appendString:[self whereSQLStringWithColumnNames:columnNames whereType:whereType]];
                 NSMutableArray *arguments = [NSMutableArray arrayWithArray:updateColumnValues];
                 [arguments addObjectsFromArray:columnValues];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:arguments];
@@ -242,22 +225,63 @@ static FMDBHandler *_instance;
  @param columnName 条件字段名
  @param value 条件字段值
  */
-- (void)getDataWithTableName:(NSString *)tableName columName:(NSString *)columnName columnValue:(id)value {
+- (NSArray *)getDataWithTableName:(NSString *)tableName classObject:(id)classObject columName:(NSString *)columnName columnValue:(id)value {
     
+    __block NSMutableArray *resultArray = [NSMutableArray array];
     if ([self tableIsExist:tableName]) {
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             if ([db open]) {
                 NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?", tableName, columnName];
                 FMResultSet *resultSet = [db executeQuery:sqlString withArgumentsInArray:@[value]];
-                if ([resultSet next]) {
-                    
+                while ([resultSet next]) {
+                    // 数据解析
+                    id classObj = [NSClassFromString(NSStringFromClass(classObject)) new];
+                    [self classObject:classObj ResultSet:resultSet];
+                    [resultArray addObject:classObj];
                 }
                 [self closeDataBase:db];
             }
         }];
     }
+    
+    return resultArray;
 }
 
+/**
+ 根据多个条件获取数据
+ 
+ @param tableName 表名
+ @param classObject 数据模型
+ @param columnNames 条件字段名
+ @param values 条件字段值
+ */
+- (NSArray *)getDataWithTableName:(NSString *)tableName classObject:(id)classObject columnNames:(NSArray *)columnNames columnValues:(NSArray *)values whereType:(FMDBHandlerWhereSQLType)whereType {
+    
+    __block NSMutableArray *resultArray = [NSMutableArray array];
+    if ([self tableIsExist:tableName]) {
+        [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+            if ([db open]) {
+                NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@ %@", tableName, [self whereSQLStringWithColumnNames:columnNames whereType:whereType]];
+                FMResultSet *resultSet = [db executeQuery:sqlString withArgumentsInArray:values];
+                while ([resultSet next]) {
+                    id classObj = [[NSClassFromString(NSStringFromClass(classObject)) alloc] init];
+                    [self classObject:classObj ResultSet:resultSet];
+                    [resultArray addObject:classObj];
+                }
+                [self closeDataBase:db];
+            }
+        }];
+    }
+    
+    return resultArray;
+}
+
+/**
+ 获取所有数据
+
+ @param tableName 表名
+ @param classObject 类
+ */
 - (NSArray *)getAllDataWithTableName:(NSString *)tableName classObject:(id)classObject {
     
     __block NSMutableArray *resultArray = [NSMutableArray array];
@@ -282,8 +306,75 @@ static FMDBHandler *_instance;
 }
 
 /**
- 利用运行时将数据赋值
+ 执行自定义SQL更新语句
+ 
+ @param sqlString SQL语句
+ */
+- (BOOL)executeUpdate:(NSString *)sqlString {
+    
+    __block BOOL result = NO;
+    [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        if ([db open]) {
+            result = [db executeUpdate:sqlString];
+            [self closeDataBase:db];
+        }
+    }];
+    
+    return result;
+}
 
+/**
+ 执行自定义SQL查询语句
+
+ @param sqlString SQL查询语句
+ @param classObject 模型数据
+ */
+- (NSArray *)executeQuery:(NSString *)sqlString classObject:(id)classObject {
+    
+    __block NSMutableArray *resultArray = [NSMutableArray array];
+    [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        if ([db open]) {
+            FMResultSet *resultSet = [db executeQuery:sqlString];
+            while ([resultSet next]) {
+                id classObj = [[NSClassFromString(NSStringFromClass(classObject)) alloc] init];
+                [self classObject:classObj ResultSet:resultSet];
+                [resultArray addObject:classObj];
+            }
+            
+            [self closeDataBase:db];
+        }
+    }];
+    
+    return resultArray;
+}
+
+
+#pragma mark - Private
+
+/**
+ WHERE语句拼接
+
+ @param columnNames 条件数组
+ */
+- (NSString *)whereSQLStringWithColumnNames:(NSArray *)columnNames whereType:(FMDBHandlerWhereSQLType)whereType {
+    
+    NSString *str = whereType == FMDBHandlerWhereSQLTypeOr ? @"OR" : @"AND";
+    NSMutableString *sqlString = [NSMutableString stringWithFormat:@"WHERE"];
+    for (int i = 0; i < columnNames.count; i++) {
+        NSString *columnName = columnNames[i];
+        if (i < columnNames.count - 1) {
+            [sqlString appendFormat:@" %@ = ? %@", columnName, str];
+        } else {
+            [sqlString appendFormat:@" %@ = ?", columnName];
+        }
+    }
+    
+    return sqlString;
+}
+
+/**
+ 利用运行时将数据赋值
+ 
  @param classObject 模型数据
  @param resultSet 结果集合
  */
@@ -304,7 +395,7 @@ static FMDBHandler *_instance;
 
 /**
  给数据模型赋值
-
+ 
  @param classObject 数据Model对象
  @param sqlType SQL数据类型
  @param name 属性名
@@ -339,8 +430,6 @@ static FMDBHandler *_instance;
         [classObject setValue:[NSKeyedUnarchiver unarchiveObjectWithData:data] forKey:name];
     }
 }
-
-#pragma mark - Private
 
 /**
  判断字段是否存在，不存在新增一个字段

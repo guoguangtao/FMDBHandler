@@ -20,8 +20,8 @@
     [super viewDidLoad];
 
     Person *person = [[Person alloc] init];
-    person.age = 30;
-    person.name = @"Jack";
+    person.age = 10;
+    person.name = @"Tom";
     person.number = @20;
     person.numberArray = @[@1, @"43", [NSDate date]];
     Person *son = [Person new];
@@ -33,7 +33,8 @@
     
 //    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
 //    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnNames:@[@"id", @"name"] columnValues:@[@1, @"渣渣"] updateColumnNames:@[@"number", @"testNumber"] updateColumnValues:@[@1, @1]];
-    NSArray *personArray = [[FMDBHandler shareInstance] getAllDataWithTableName:@"Person" classObject:[Person class]];
+//    NSArray *personArray = [[FMDBHandler shareInstance] getAllDataWithTableName:@"Person" classObject:[Person class]];
+    NSArray *personArray = [[FMDBHandler shareInstance] getDataWithTableName:@"Person" classObject:[Person class] columnNames:@[@"age", @"name"] columnValues:@[@10, @"Jack"] whereType:FMDBHandlerWhereSQLTypeOr];
     NSLog(@"%@", personArray);
 }
 
