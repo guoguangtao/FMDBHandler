@@ -12,30 +12,43 @@
 
 @interface ViewController ()
 
+@property (nonatomic, assign) int i;
+
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    Person *person = [[Person alloc] init];
-    person.age = 10;
-    person.name = @"Tom";
-    person.number = @20;
-    person.numberArray = @[@1, @"43", [NSDate date]];
-    Person *son = [Person new];
-    son.age = 10;
-    son.name = @"tom";
-    person.son = son;
-    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
-//    [[FMDBHandler shareInstance] deletedDataWithTableName:@"Person" columnNames:@[@"name", @"number"] values:@[@"Jack", @20]];
     
-//    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnName:@"id" value:@1 updateColumnName:@"name" updateValue:@"Hello"];
-//    [[FMDBHandler shareInstance] updateDataWithTableName:@"Person" columnNames:@[@"id", @"name"] columnValues:@[@1, @"渣渣"] updateColumnNames:@[@"number", @"testNumber"] updateColumnValues:@[@1, @1]];
-//    NSArray *personArray = [[FMDBHandler shareInstance] getAllDataWithTableName:@"Person" classObject:[Person class]];
-    NSArray *personArray = [[FMDBHandler shareInstance] getDataWithTableName:@"Person" classObject:[Person class] columnNames:@[@"age", @"name"] columnValues:@[@10, @"Jack"] whereType:FMDBHandlerWhereSQLTypeOr];
-    NSLog(@"%@", personArray);
+    _i = 0;
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    
+    [self createdModel];
+}
+
+- (void)createdModel {
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        Person *person = [Person new];
+        person.name = [NSString stringWithFormat:@"%ld", (long)self.i];
+        person.age = self.i;
+        person.sex = PersonSexMan;
+        [self insertDataWithModel:person];
+    });
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSArray *result = [[FMDBHandler shareInstance] getDataWithTableName:@"Person" classObject:[Person class] columName:@"age" columnValue:[NSNumber numberWithInt:self.i]];
+        NSLog(@"查询结果 %ld", result.count);
+    });
+    self.i++;
+}
+
+- (void)insertDataWithModel:(Person *)person {
+    
+    [[FMDBHandler shareInstance] insertData:person tableName:@"Person"];
 }
 
 

@@ -47,6 +47,16 @@ static FMDBHandler *_instance;
     return _instance;
 }
 
+- (instancetype)init {
+    
+    if (self = [super init]) {
+        _dbQueue = [FMDatabaseQueue databaseQueueWithPath:[self filePath]];
+        _valuesArray = [[NSMutableArray alloc] init];
+    }
+    
+    return self;
+}
+
 - (void)dealloc {
     
     NSLog(@"%s", __func__);
@@ -83,8 +93,6 @@ static FMDBHandler *_instance;
                     NSLog(@"表创建失败");
                 }
             }
-            
-            [self closeDataBase:db];
         }];
     }
 }
@@ -102,6 +110,8 @@ static FMDBHandler *_instance;
     // 插入数据
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
         if ([db open]) {
+            NSLog(@"%@, %@", [NSThread isMainThread] ? @"主线程" : @"非主线程", [NSThread currentThread]);
+            NSLog(@"db 对象 ： %@", db);
             NSString *sql = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:classObject]];
             if ([db executeUpdate:sql withArgumentsInArray:self.valuesArray]) {
                 NSLog(@"数据插入成功");
@@ -109,7 +119,6 @@ static FMDBHandler *_instance;
                 NSLog(@"数据插入失败");
             }
             [self.valuesArray removeAllObjects];
-            [self closeDataBase:db];
         }
     }];
 }
@@ -129,7 +138,7 @@ static FMDBHandler *_instance;
                 NSString *sql = [NSString stringWithFormat:@"DELETE FROM %@ WHERE %@ = ?", tableName, columnName];
                 BOOL success = [db executeUpdate:sql withArgumentsInArray:@[value]]; // 删除操作
                 if (!success) NSLog(@"删除失败");
-                [self closeDataBase:db];
+                
             }
         }];
     }
@@ -152,7 +161,6 @@ static FMDBHandler *_instance;
                 NSMutableString *sqlString = [NSMutableString stringWithString:[NSString stringWithFormat:@"DELETE FROM %@ %@", tableName, [self whereSQLStringWithColumnNames:columnNames whereType:whereType]]];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:values];
                 if (!success) NSLog(@"删除失败");
-                [self closeDataBase:db];
             }
         }];
     }
@@ -175,7 +183,6 @@ static FMDBHandler *_instance;
                 NSMutableString *sqlString = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = ? WHERE %@ = ?", tableName, updateColumnName, columnName];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:@[updateValue, value]];
                 if (!success) NSLog(@"更新失败");
-                [self closeDataBase:db];
             }
         }];
     }
@@ -212,7 +219,6 @@ static FMDBHandler *_instance;
                 [arguments addObjectsFromArray:columnValues];
                 BOOL success = [db executeUpdate:sqlString withArgumentsInArray:arguments];
                 if (!success) NSLog(@"更新失败");
-                [self closeDataBase:db];
             }
         }];
     }
@@ -231,6 +237,8 @@ static FMDBHandler *_instance;
     if ([self tableIsExist:tableName]) {
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             if ([db open]) {
+                NSLog(@"%@, %@", [NSThread isMainThread] ? @"主线程" : @"非主线程", [NSThread currentThread]);
+                NSLog(@"db 对象 ： %@", db);
                 NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?", tableName, columnName];
                 FMResultSet *resultSet = [db executeQuery:sqlString withArgumentsInArray:@[value]];
                 while ([resultSet next]) {
@@ -239,7 +247,8 @@ static FMDBHandler *_instance;
                     [self classObject:classObj ResultSet:resultSet];
                     [resultArray addObject:classObj];
                 }
-                [self closeDataBase:db];
+                
+                [resultSet close];
             }
         }];
     }
@@ -268,7 +277,8 @@ static FMDBHandler *_instance;
                     [self classObject:classObj ResultSet:resultSet];
                     [resultArray addObject:classObj];
                 }
-                [self closeDataBase:db];
+                
+                [resultSet close];
             }
         }];
     }
@@ -297,7 +307,8 @@ static FMDBHandler *_instance;
                     [self classObject:classObj ResultSet:resultSet];
                     [resultArray addObject:classObj];
                 }
-                [self closeDataBase:db];
+                
+                [resultSet close];
             }
         }];
     }
@@ -316,7 +327,6 @@ static FMDBHandler *_instance;
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
         if ([db open]) {
             result = [db executeUpdate:sqlString];
-            [self closeDataBase:db];
         }
     }];
     
@@ -341,7 +351,7 @@ static FMDBHandler *_instance;
                 [resultArray addObject:classObj];
             }
             
-            [self closeDataBase:db];
+            [resultSet close];
         }
     }];
     
@@ -455,7 +465,6 @@ static FMDBHandler *_instance;
                         NSLog(@"%@字段增加失败", columnString);
                     }
                 }
-                [self closeDataBase:db];
             }
         }];
     }
@@ -576,25 +585,12 @@ static FMDBHandler *_instance;
                     isExist = YES;
                 }
             }
-            [result close];
             
-            [self closeDataBase:db];
+            [result close];
         }
     }];
     
     return isExist;
-}
-
-/**
- 关闭数据库
-
- @param db 数据库管理
- */
-- (void)closeDataBase:(FMDatabase *)db {
-    
-    if ([db open]) {
-        [db close];
-    }
 }
 
 
@@ -602,23 +598,5 @@ static FMDBHandler *_instance;
 
 
 #pragma mark - 懒加载
-
-- (FMDatabaseQueue *)dbQueue {
-    
-    if (_dbQueue == nil) {
-        _dbQueue = [FMDatabaseQueue databaseQueueWithPath:[self filePath]];
-    }
-    
-    return _dbQueue;
-}
-
-- (NSMutableArray *)valuesArray {
-    
-    if (_valuesArray == nil) {
-        _valuesArray = [[NSMutableArray alloc] init];
-    }
-    
-    return _valuesArray;
-}
 
 @end

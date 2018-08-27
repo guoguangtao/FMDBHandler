@@ -46,7 +46,9 @@ typedef NS_ENUM(NSInteger, FMDBHandlerWhereSQLType) {
  @param columnName 条件字段名
  @param value 条件字段内容
  */
-- (void)deletedDataWithTableName:(NSString *)tableName columnName:(NSString *)columnName value:(id)value;
+- (void)deletedDataWithTableName:(NSString *)tableName
+                      columnName:(NSString *)columnName
+                           value:(id)value;
 
 /**
  按照多个条件删除某条数据
@@ -55,7 +57,10 @@ typedef NS_ENUM(NSInteger, FMDBHandlerWhereSQLType) {
  @param columnNames 条件数组
  @param values 内容数组
  */
-- (void)deletedDataWithTableName:(NSString *)tableName columnNames:(NSArray *)columnNames values:(NSArray *)values whereType:(FMDBHandlerWhereSQLType)whereType;
+- (void)deletedDataWithTableName:(NSString *)tableName
+                     columnNames:(NSArray *)columnNames
+                          values:(NSArray *)values
+                       whereType:(FMDBHandlerWhereSQLType)whereType;
 
 
 /**
