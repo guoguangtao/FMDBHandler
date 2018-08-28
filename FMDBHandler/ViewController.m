@@ -22,6 +22,22 @@
     [super viewDidLoad];
     
     _i = 0;
+    
+    Person *person = [Person new];
+    person.name = [NSString stringWithFormat:@"%ld", (long)self.i];
+    person.age = self.i;
+    person.sex = PersonSexMan;
+    
+    Person *son = [Person new];
+    son.name = @"🙃";
+    son.age = 12;
+    son.sex = PersonSexMan;
+    person.son = son;
+    
+    person.numberArray = @[son, son, son];
+    
+    [[FMDBHandler shareInstance] insertDatas:@[person, person, person, person] tableName:@"Person"];
+    
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -36,13 +52,18 @@
         person.name = [NSString stringWithFormat:@"%ld", (long)self.i];
         person.age = self.i;
         person.sex = PersonSexMan;
+        
+        Person *son = [Person new];
+        son.name = @"🙃";
+        son.age = 12;
+        son.sex = PersonSexMan;
+        person.son = son;
+        
+        person.numberArray = @[son, son, son];
+        
         [self insertDataWithModel:person];
     });
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSArray *result = [[FMDBHandler shareInstance] getDataWithTableName:@"Person" classObject:[Person class] columName:@"age" columnValue:[NSNumber numberWithInt:self.i]];
-        NSLog(@"查询结果 %ld", result.count);
-    });
     self.i++;
 }
 

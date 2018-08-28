@@ -107,6 +107,40 @@ static FMDBHandler *_instance;
     
     // 先创建表格
     [self tableName:tableName classObject:classObject];
+    
+    // 插入单个数据
+    [self insertSimpleData:classObject tableName:tableName];
+}
+
+/**
+ 插入数组
+
+ @param dataArray 数组数据
+ @param tableName 表名
+ */
+- (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName {
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // 表格的判断和创建
+        if (dataArray.count) {
+            [self tableName:tableName classObject:[dataArray firstObject]];            
+        }
+        
+        // 插入数据库
+        for (id object in dataArray) {
+            [self insertSimpleData:object tableName:tableName];
+        }
+    });
+}
+
+/**
+ 插入单条数据
+
+ @param classObject 需要插入的对象
+ @param tableName 表名
+ */
+- (void)insertSimpleData:(id)classObject tableName:(NSString *)tableName {
+    
     // 插入数据
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
         if ([db open]) {
