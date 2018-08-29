@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author             = { "guoguangtao" => "jude_guo@163.com" }
   s.source       = { :git => "https://github.com/JudeGGT/FMDBHandler", :tag => "1.0.0" }
-  s.source_files  = "FMDBHandler/FMDBHandler/**/*.{h,m}"
+  s.source_files  = "FMDBHandler/FMDBHandler/*.{h,m}"
   s.exclude_files = "Classes/Exclude"
 
 
