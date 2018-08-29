@@ -12,5 +12,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/JudeGGT/FMDBHandler", :tag => "v1.0.1" }
   s.source_files  = "FMDBHandler/FMDBHandler/*.{h,m}"
   s.platform = :ios, "8.0"
-  s.requires_arc = false
+  s.requires_arc = true
+  s.dependency "FMDB"
 end
