@@ -36,7 +36,21 @@
     
     person.numberArray = @[son, son, son];
     
-    [[FMDBHandler shareInstance] insertDatas:@[person, person, person, person] tableName:@"Person"];
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for (int i = 0; i < 50000; i++) {
+        [array addObject:person];
+    }
+    
+    NSLog(@"---开始时间%@", [NSDate date]);
+    [[FMDBHandler shareInstance] insertDatas:array tableName:@"Person" transaction:NO];
+    NSLog(@"----结束时间%@", [NSDate date]);
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"===开始时间%@", [NSDate date]);
+        [[FMDBHandler shareInstance] insertDatas:array tableName:@"Person" transaction:YES];
+        NSLog(@"===结束时间%@", [NSDate date]);
+    });
     
 }
 

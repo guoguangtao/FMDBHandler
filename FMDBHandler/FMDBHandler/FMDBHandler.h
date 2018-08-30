@@ -39,7 +39,14 @@ typedef NS_ENUM(NSInteger, FMDBHandlerWhereSQLType) {
  */
 - (void)insertData:(id)classObject tableName:(NSString *)tableName;
 
-- (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName;
+/**
+ 插入数组
+
+ @param dataArray 数组
+ @param tableName 表名
+ @param transaction 是否用事务方式插入 YES（事务）/NO（非事务）
+ */
+- (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName transaction:(BOOL)transaction;
 
 /**
  按照单个条件删除某条数据

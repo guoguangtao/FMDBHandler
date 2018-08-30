@@ -114,23 +114,52 @@ static FMDBHandler *_instance;
 
 /**
  插入数组
+ 
+ @param dataArray 数组
+ @param tableName 表名
+ @param transaction 是否用事务方式插入 YES（事务）/NO（非事务）
+ */
+- (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName transaction:(BOOL)transaction {
+    
+    // 表格的判断和创建
+    if (dataArray.count) {
+        [self tableName:tableName classObject:[dataArray firstObject]];
+    }
+    
+    // 创建并行队列
+    dispatch_queue_t myConcurrentQueue = dispatch_queue_create("com.gcd.queueCreate.currentQueue", DISPATCH_QUEUE_CONCURRENT);
+    if (transaction) {
+        dispatch_async(myConcurrentQueue, ^{
+            [self insertDatasByTransaction:dataArray tableName:tableName];
+        });
+    } else {
+        dispatch_async(myConcurrentQueue, ^{
+            // 插入数据库
+            for (id object in dataArray) {
+                [self insertSimpleData:object tableName:tableName];
+            }
+        });
+    }
+}
 
- @param dataArray 数组数据
+/**
+ 通过事务插入数据
+
+ @param dataArray 数组
  @param tableName 表名
  */
-- (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName {
+- (void)insertDatasByTransaction:(NSArray *)dataArray tableName:(NSString *)tableName {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        // 表格的判断和创建
-        if (dataArray.count) {
-            [self tableName:tableName classObject:[dataArray firstObject]];            
-        }
-        
-        // 插入数据库
+    __block BOOL result = YES;
+    [self.dbQueue inTransaction:^(FMDatabase * _Nonnull db, BOOL * _Nonnull rollback) {
         for (id object in dataArray) {
-            [self insertSimpleData:object tableName:tableName];
+            NSString *sqlString = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:object]];
+            result = [db executeUpdate:sqlString withArgumentsInArray:self.valuesArray] & result;
         }
-    });
+        if (!result) {
+            NSLog(@"插入失败");
+        }
+    }];
 }
 
 /**
@@ -144,15 +173,12 @@ static FMDBHandler *_instance;
     // 插入数据
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
         if ([db open]) {
-            NSLog(@"%@, %@", [NSThread isMainThread] ? @"主线程" : @"非主线程", [NSThread currentThread]);
-            NSLog(@"db 对象 ： %@", db);
             NSString *sql = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:classObject]];
             if ([db executeUpdate:sql withArgumentsInArray:self.valuesArray]) {
                 NSLog(@"数据插入成功");
             } else {
                 NSLog(@"数据插入失败");
             }
-            [self.valuesArray removeAllObjects];
         }
     }];
 }
@@ -271,8 +297,6 @@ static FMDBHandler *_instance;
     if ([self tableIsExist:tableName]) {
         [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
             if ([db open]) {
-                NSLog(@"%@, %@", [NSThread isMainThread] ? @"主线程" : @"非主线程", [NSThread currentThread]);
-                NSLog(@"db 对象 ： %@", db);
                 NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?", tableName, columnName];
                 FMResultSet *resultSet = [db executeQuery:sqlString withArgumentsInArray:@[value]];
                 while ([resultSet next]) {
@@ -520,7 +544,6 @@ static FMDBHandler *_instance;
         Ivar ivar = ivars[i];
         const char *name = ivar_getName(ivar);
         const char *type = ivar_getTypeEncoding(ivar);
-        NSLog(@"类型为 %s, 属性名 %s", type, name);
         [sqlString appendFormat:@", %@ %@", [[NSString stringWithFormat:@"%s", name] substringFromIndex:1], [self sqlTypeWithChar:type]];
     }
     [sqlString appendString:@");"];
@@ -540,6 +563,7 @@ static FMDBHandler *_instance;
     Ivar *ivars = class_copyIvarList([classObject class], &outCount);
     NSMutableString *keyString = [NSMutableString stringWithString:@" ("];
     NSMutableString *valueString = [NSMutableString stringWithString:@" VALUES ("];
+    [self.valuesArray removeAllObjects];
     for (unsigned int i = 0; i < outCount; i ++) {
         Ivar ivar = ivars[i];
         const char *name = ivar_getName(ivar);
