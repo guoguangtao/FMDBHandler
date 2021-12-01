@@ -13,7 +13,8 @@
 @interface FMDBHandler ()
 
 @property (nonatomic, strong) FMDatabaseQueue *dbQueue;
-@property (nonatomic, strong) NSMutableArray *valuesArray;
+@property (nonatomic, strong) NSMutableArray *valuesArray; /**< SQL Values */
+@property (nonatomic, strong) dispatch_queue_t insertQueue; /**< 插入数据队列 */
 
 @end
 
@@ -50,6 +51,7 @@ static FMDBHandler *_instance;
 - (instancetype)init {
     
     if (self = [super init]) {
+        _insertQueue = dispatch_queue_create("com.gcd.queueCreate.currentQueue", DISPATCH_QUEUE_SERIAL);
         _dbQueue = [FMDatabaseQueue databaseQueueWithPath:[self filePath]];
         _valuesArray = [[NSMutableArray alloc] init];
     }
@@ -126,15 +128,14 @@ static FMDBHandler *_instance;
         [self tableName:tableName classObject:[dataArray firstObject]];
     }
     
-    // 创建并行队列
-    dispatch_queue_t myConcurrentQueue = dispatch_queue_create("com.gcd.queueCreate.currentQueue", DISPATCH_QUEUE_CONCURRENT);
     if (transaction) {
-        dispatch_async(myConcurrentQueue, ^{
+        // 使用事务插入
+        dispatch_async(self.insertQueue, ^{
             [self insertDatasByTransaction:dataArray tableName:tableName];
         });
     } else {
-        dispatch_async(myConcurrentQueue, ^{
-            // 插入数据库
+        // 插入数据库
+        dispatch_async(self.insertQueue, ^{
             for (id object in dataArray) {
                 [self insertSimpleData:object tableName:tableName];
             }
@@ -152,12 +153,15 @@ static FMDBHandler *_instance;
     
     __block BOOL result = YES;
     [self.dbQueue inTransaction:^(FMDatabase * _Nonnull db, BOOL * _Nonnull rollback) {
-        for (id object in dataArray) {
-            NSString *sqlString = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:object]];
-            result = [db executeUpdate:sqlString withArgumentsInArray:self.valuesArray] & result;
-        }
-        if (!result) {
-            NSLog(@"插入失败");
+        NSLog(@"当前线程:%@", [NSThread currentThread]);
+        if ([db open]) {
+            for (id object in dataArray) {
+                NSString *sqlString = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:object]];
+                result = [db executeUpdate:sqlString withArgumentsInArray:self.valuesArray] & result;
+            }
+            if (!result) {
+                NSLog(@"插入失败");
+            }
         }
     }];
 }
@@ -172,6 +176,7 @@ static FMDBHandler *_instance;
     
     // 插入数据
     [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+        NSLog(@"当前线程:%@", [NSThread currentThread]);
         if ([db open]) {
             NSString *sql = [NSString stringWithFormat:@"INSERT INTO %@%@", tableName, [self insertSqlStringWithClassObject:classObject]];
             if ([db executeUpdate:sql withArgumentsInArray:self.valuesArray]) {
@@ -181,6 +186,29 @@ static FMDBHandler *_instance;
             }
         }
     }];
+}
+
+/// 删除某个表格所有数据
+/// @param tableName 表名
+- (void)deleteAllDataWithTableName:(NSString *)tableName {
+    
+    dispatch_async(self.insertQueue, ^{
+        if ([self tableIsExist:tableName]) {
+            [self.dbQueue inDatabase:^(FMDatabase * _Nonnull db) {
+                NSLog(@"当前线程:%@", [NSThread currentThread]);
+                if ([db open]) {
+                    NSString *sql = [NSString stringWithFormat:@"DROP TABLE %@", tableName];
+                    FMResultSet *result = [db executeQuery:sql];
+                    [result close];
+                    if (result) {
+                        NSLog(@"删除 %@ 表成功", tableName);
+                    } else {
+                        NSLog(@"删除 %@ 表失败", tableName);
+                    }
+                }
+            }];
+        }
+    });
 }
 
 /**
@@ -198,7 +226,6 @@ static FMDBHandler *_instance;
                 NSString *sql = [NSString stringWithFormat:@"DELETE FROM %@ WHERE %@ = ?", tableName, columnName];
                 BOOL success = [db executeUpdate:sql withArgumentsInArray:@[value]]; // 删除操作
                 if (!success) NSLog(@"删除失败");
-                
             }
         }];
     }
@@ -595,7 +622,7 @@ static FMDBHandler *_instance;
  */
 - (NSString *)filePath {
     
-    NSString *filePath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"FMDB.sqlite"];
+    NSString *filePath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"YXCDataBase.sqlite"];
     NSLog(@"%@", filePath);
     return filePath;
 }

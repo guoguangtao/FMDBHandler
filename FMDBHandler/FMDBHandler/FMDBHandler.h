@@ -48,6 +48,10 @@ typedef NS_ENUM(NSInteger, FMDBHandlerWhereSQLType) {
  */
 - (void)insertDatas:(NSArray *)dataArray tableName:(NSString *)tableName transaction:(BOOL)transaction;
 
+/// 删除某个表格所有数据
+/// @param tableName 表名
+- (void)deleteAllDataWithTableName:(NSString *)tableName;
+
 /**
  按照单个条件删除某条数据
 
