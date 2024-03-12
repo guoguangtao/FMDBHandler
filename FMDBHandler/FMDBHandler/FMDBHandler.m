@@ -198,9 +198,8 @@ static FMDBHandler *_instance;
                 NSLog(@"当前线程:%@", [NSThread currentThread]);
                 if ([db open]) {
                     NSString *sql = [NSString stringWithFormat:@"DROP TABLE %@", tableName];
-                    FMResultSet *result = [db executeQuery:sql];
-                    [result close];
-                    if (result) {
+                    BOOL success = [db executeUpdate:sql];
+                    if (success) {
                         NSLog(@"删除 %@ 表成功", tableName);
                     } else {
                         NSLog(@"删除 %@ 表失败", tableName);
